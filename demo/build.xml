@@ -1,0 +1,89 @@
+
+
+<project name="javacc">
+
+	<property name="dir.build" location="build" />
+	<property name="dir.build.dist" location="${dir.build}/dist" />
+	<property name="dir.build.main.java" location="${dir.build}/java" />
+	<property name="dir.build.run" location="${dir.build}/run" />
+	<property name="dir.build.test.java" location="${dir.build}/test" />
+	<property name="dir.lib" location="lib" />
+	<property name="dir.main.java" location="src/main/java" />
+	<property name="dir.main.resource" location="src/main/resource" />
+	<property name="dir.pkg.demo" location="${dir.main.java}/demo" />
+	<property name="dir.test.java" location="src/test/java" />
+
+	<property name="file.grammar" location="${dir.main.resource}/javacc.jj" />
+
+
+
+	<target name="clean" description="Clean build dir">
+		<delete dir="${dir.build}" />
+		<delete dir="${dir.pkg.demo}" />
+	</target>
+
+	<target name="javacc">
+		<mkdir dir="${dir.pkg.demo}" />
+		<javacc target="${file.grammar}" outputdirectory="${dir.pkg.demo}" javacchome="${dir.lib}" />
+	</target>
+
+	<target name="compile-main" depends="javacc">
+		<mkdir dir="${dir.build.main.java}" />
+		<javac srcdir="${dir.main.java}" destdir="${dir.build.main.java}" includeantruntime="false">
+			<classpath>
+				<fileset dir="${dir.lib}" includes="*.jar" />
+			</classpath>
+		</javac>
+	</target>
+
+	<target name="run-tokens" depends="compile-main" description="Run lexical analysis and print tokens">
+		<mkdir dir="${dir.build.run}" />
+		<copy file="${dir.main.resource}/input.txt" todir="${dir.build.run}" />
+		<java classpath="${dir.build.main.java}" classname="boot.Tokens" dir="${dir.build.run}" fork="true" args="input.txt" />
+	</target>
+
+	<target name="options" description="Show javacc options">
+		<java fork="true" classname="javacc">
+			<classpath>
+				<fileset file="${dir.lib}/javacc.jar"/>
+			</classpath>
+		</java>
+	</target>
+
+	<target name="run-parser" depends="compile-main" description="Run parser">
+		<mkdir dir="${dir.build.run}" />
+		<copy file="${dir.main.resource}/input.txt" todir="${dir.build.run}" />
+		<java classpath="${dir.build.main.java}" classname="boot.Parser" dir="${dir.build.run}" fork="true" args="input.txt" />
+	</target>
+
+	<target name="compile-test" depends="compile-main">
+		<mkdir dir="${dir.build.test.java}" />
+		<javac srcdir="${dir.test.java}" destdir="${dir.build.test.java}" includeantruntime="false">
+			<classpath path="${dir.build.main.java}">
+				<fileset dir="${dir.lib}" includes="*.jar" />
+			</classpath>
+		</javac>
+	</target>
+
+	<target name="unit" depends="compile-test" description="Run unit tests">
+		<junit fork="true" haltonfailure="yes" filtertrace="true">
+			<classpath path="${dir.build.main.java};${dir.build.test.java}">
+				<fileset dir="lib" includes="*.jar" />
+			</classpath>
+			<batchtest>
+				<fileset dir="${dir.build.test.java}" includes="**/*U.class" />
+			</batchtest>
+			<formatter type="plain" usefile="false" />
+		</junit>
+	</target>
+
+	<target name="jar" depends="unit" description="Create stand alone jar for parser">
+		<mkdir dir="${dir.build.dist}" />
+		<jar destfile="${dir.build.dist}/demo-parser.jar">
+			<fileset dir="${dir.build.main.java}" />
+			<fileset dir="${dir.main.java}" />
+		</jar>
+	</target>
+
+</project>
+

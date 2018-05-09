@@ -1,0 +1,466 @@
+
+
+options {
+	STATIC = false;
+	LOOKAHEAD = 5;
+	
+} 
+
+PARSER_BEGIN(DemoParser)
+
+package demo; 
+
+import java.util.List;
+import java.util.ArrayList;
+import java.lang.*;
+import java.util.LinkedList;
+
+public class DemoParser {
+
+public static LinkedList<String> variables=new LinkedList<String>();
+public static LinkedList<Double> values=new LinkedList<Double>();
+
+
+//values for one-dimensional tab
+public static LinkedList<String> variables_1dim_array = new LinkedList<String>();
+public static LinkedList<Double> values_1dim_array = new LinkedList<Double>();
+
+
+//variables & values for two-dimensional tab rozkminic to
+public static LinkedList<LinkedList<Integer>> indexes_2dim_array = new LinkedList<LinkedList<Integer>>();
+public static LinkedList<Double> values_2dim_array = new LinkedList<Double>();
+
+
+}
+PARSER_END(DemoParser)
+
+
+
+
+SKIP :
+{
+    " " | "\n" | "\r" | "\r\n" | "\t"
+}
+
+
+TOKEN:
+{
+   < PLUS : "+" > |
+   < MINUS : "-" > |
+   < TIMES : "*" > |
+   < DOUBLE: "double" >|
+   < INT : "int" > |
+   < DIVIDE : "/" > |
+   < OPEN_PAR : "(" > |
+   < CLOSE_PAR : ")" > |
+   < OPEN_BRACE : "{" > |
+   < CLOSE_BRACE : "}" > |
+   < OPEN_SQUARE : "[" > |
+   < CLOSE_SQUARE : "]" > |
+   < NUMBER : (["0"-"9"])+ | (["0"-"9"])+ "." (["0"-"9"])+ | (["0"-"9"])+ "." | "." (["0"-"9"])+ > |
+   < ASSIGNMENT : "=" > |
+   < LOGIC_EQUALITY : "==" > |
+   < LOGIC_INEQUALITY : "!=" > |
+   < LOGIC_AND : "&&" > |
+   < LOGIC_OR : "||" >  |
+   < LESS_THAN : "<"> |
+   < GREATER_THAN : ">" > |
+   < SEMICOLON: ";" > |
+   < COMA: "," > |
+   < IF : "if" > |
+   < ELSE : "else" > |
+   < FOR : "for" > |
+   < AS : "as" > |
+   < END : "end" > |
+   < VARIABLE : (["a"-"z", "A"-"Z"])+ > |
+   < OTHER : ~[]>
+   
+}
+
+
+
+void Start() throws NumberFormatException :
+{
+	double d=0.0;
+	double x=0.0;
+}
+{
+	(statement())*
+	<EOF>
+}
+
+
+
+ 
+ 
+void statement() throws NumberFormatException : {
+     Token t;
+     double w;
+     }
+  {
+  assign_value()
+  |
+  assign_with_no_value()
+  |
+  Expression()
+  |
+  setValue()
+  |
+  ifElse()
+  |
+  assign_1dim_table()
+  |
+  assign_2dim_table()
+} 
+ 
+ 
+ 
+ void ifElse() throws NumberFormatException :
+ {
+ 	boolean cond = false;
+ 	Token token;
+ 	double d = 0.0;
+ 	double x = 0.0;
+ }
+ {
+ 
+ <IF>
+ <OPEN_PAR> 
+	cond = condition() 
+ token = <CLOSE_PAR>
+
+{
+ 	if(cond == false)
+ 	{
+ 		while(token.kind != ELSE)
+ 		 {
+         	token = getNextToken();
+         }
+ 	}
+}
+
+
+	(statement())* 
+	
+	
+{
+	if(cond == true)
+	{
+		while(token.kind != CLOSE_BRACE)
+		{
+			token = getNextToken();
+		}
+	}
+}
+
+
+ 	(<ELSE>  (statement())* )* <END> 
+}
+  
+  
+  
+  
+  
+  
+  
+  
+  
+boolean condition() throws NumberFormatException :
+{
+Token n,m;
+boolean result = false;
+}
+{
+n = <NUMBER>
+( <LESS_THAN> m = <NUMBER>
+{
+	if(Double.parseDouble(n.image) < Double.parseDouble(m.image))
+	{
+		result = true;
+	}
+	return result;
+}
+|
+<GREATER_THAN> m = <NUMBER>
+{
+	if(Double.parseDouble(n.image) > Double.parseDouble(m.image))
+	{
+		result = true;
+	}
+	return result;
+}
+|
+<LOGIC_EQUALITY> m = <NUMBER>
+{
+	if(Double.parseDouble(n.image) == Double.parseDouble(m.image))
+	{
+		result = true;
+	}
+	return result;
+}
+|
+<LOGIC_INEQUALITY> m = <NUMBER>
+{
+	if(Double.parseDouble(n.image) != Double.parseDouble(m.image))
+	{
+		result = true;
+	}
+	return result;
+}
+)
+}
+
+
+  
+  
+  
+double assign() throws NumberFormatException : 
+{
+     Token t;
+     Double d;
+}
+{
+  <DOUBLE> t=<VARIABLE> <ASSIGNMENT> d=Expression()
+  { return d;}
+
+} 
+
+
+
+
+
+
+void assign_value() throws NumberFormatException : 
+{
+     Token t;
+     double d;
+}
+{
+  <DOUBLE> t=<VARIABLE> <ASSIGNMENT> d=Expression()
+  { 
+  	variables.add(t.image);
+  	values.add(d);
+  }
+
+}
+ 
+ 
+ 
+ 
+ 
+ 
+void assign_with_no_value() throws NumberFormatException : 
+{
+ Token t;
+ double d;
+}
+{
+  <DOUBLE> t=<VARIABLE> 
+  { 
+  	variables.add(t.image);
+  	values.add(0.0);
+  }
+
+}
+
+
+
+void assign_1dim_table() throws NumberFormatException :
+{
+Token t, size1;
+}
+{
+	
+	<INT><OPEN_SQUARE><CLOSE_SQUARE> t = <VARIABLE> <ASSIGNMENT><OPEN_SQUARE> size1 = <NUMBER><CLOSE_SQUARE>
+	
+	{
+		int x = Integer.parseInt(size1.image);
+		int [] tab = new int [x];
+		for(int i=0;i<x;i++)
+		{
+			tab[i] = 0;
+		} 
+		
+		for(int i=0;i<x;i++)
+		{
+			System.out.println(tab[i]);
+		}
+	}
+}
+
+
+
+
+
+
+
+void assign_2dim_table() throws NumberFormatException :
+{
+Token t, size1, size2;
+}
+{
+	<INT><OPEN_SQUARE><CLOSE_SQUARE><OPEN_SQUARE><CLOSE_SQUARE> t=<VARIABLE> <ASSIGNMENT>
+	<OPEN_SQUARE> size1 = <NUMBER> <COMA> size2 = <NUMBER> <CLOSE_SQUARE>
+	
+	
+	{
+		int s1 = Integer.parseInt(size1.image);
+		int s2 = Integer.parseInt(size2.image); 
+		int [][] tab = new int[s1][s2];
+		for(int i=0;i<s1;i++){
+			for(int j=0;j<s2;j++){
+				tab[i][j] = 0;
+			}
+		}
+		for(int i=0;i<s1;i++){
+			for(int j=0;j<s2;j++){
+				System.out.println(tab[i][j]);
+			}
+		}
+	}
+}
+
+
+
+
+void setValue() throws NumberFormatException : 
+{
+     Token t;
+     double d;
+     int i;
+}
+{
+  <AS> t=<VARIABLE> <ASSIGNMENT> d=Expression()
+  { 
+  	i=variables.indexOf(t.image);
+  	values.set(i,d);
+  }
+
+}
+
+
+
+
+
+
+double Primary() throws NumberFormatException :
+{
+	Token token;
+	double d;
+	int i;
+}
+{
+	token = <NUMBER>
+	{return Double.parseDouble(token.image);}
+	|
+	<OPEN_PAR> d = Expression() <CLOSE_PAR>
+	{return d;}
+	|
+	token = <VARIABLE>
+	{i=variables.indexOf(token.image);
+	return values.get(i);}
+}
+
+
+
+
+
+
+
+
+
+double Expression() throws NumberFormatException :
+{
+	double i;
+	double value;
+}
+{
+	value = Term( )
+	(
+	<PLUS>
+	i = Term()
+	{value += i;}
+	
+	|
+	
+	<MINUS>
+	i=Term()
+	{value -= i;}
+	)*
+	{System.out.println(value);
+	return value;}
+}
+
+
+
+
+
+
+double Term() throws NumberFormatException :
+{
+ 	double i;
+ 	double value;
+}
+{
+	value = Primary( )
+	(
+	<TIMES>
+	i = Primary()
+	{value *= i;}
+	|
+	<DIVIDE>
+	i = Primary()
+	{value /= i;}
+	)*
+	{return value;}
+}
+
+
+
+ 
+ 
+/*
+List<Double> parseFile() throws NumberFormatException: 
+	{
+		Double value;
+		Double i;
+		List<Double> results = new ArrayList<Double>();
+	}
+	{
+	 
+		value = Primary()
+		(
+		<PLUS>
+		i= Term()
+		{value += i;
+		results.add(value);
+		return results;}
+		
+		|
+		
+		<MINUS>
+		i=Term()
+		{value -= i;
+		results.add(value);}
+		{return results;}
+		
+		| 
+		
+		<TIMES>
+		i=Primary()
+		{value *= i;
+		results.add(value);}
+		{return results;}
+		
+		|
+		
+		<DIVIDE>
+		i=Primary()
+		{value /= i;
+		results.add(value);}
+		)*
+		{return results;}
+		
+	}
+	*/
+	
