@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.lang.*;
 import java.util.LinkedList;
+import java.util.Random;
 
 /** Token Manager. */
 public class DemoParserTokenManager implements DemoParserConstants

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.lang.*;
 import java.util.LinkedList;
+import java.util.Random;
 
 public class DemoParser implements DemoParserConstants {
 
@@ -197,10 +198,11 @@ Token t, size1;
     size1 = jj_consume_token(NUMBER);
     jj_consume_token(CLOSE_SQUARE);
                 int x = Integer.parseInt(size1.image);
+                Random random = new Random();
                 int [] tab = new int [x];
                 for(int i=0;i<x;i++)
                 {
-                        tab[i] = 0;
+                        tab[i] = random.nextInt(100);
                 }
 
                 for(int i=0;i<x;i++)
@@ -226,9 +228,10 @@ Token t, size1, size2;
                 int s1 = Integer.parseInt(size1.image);
                 int s2 = Integer.parseInt(size2.image);
                 int [][] tab = new int[s1][s2];
+                Random random = new Random();
                 for(int i=0;i<s1;i++){
                         for(int j=0;j<s2;j++){
-                                tab[i][j] = 0;
+                                tab[i][j] = random.nextInt(100);
                         }
                 }
                 for(int i=0;i<s1;i++){
@@ -498,12 +501,6 @@ Token t, size1, size2;
     finally { jj_save(23, xla); }
   }
 
-  private boolean jj_3_24() {
-    if (jj_scan_token(DIVIDE)) return true;
-    if (jj_3R_16()) return true;
-    return false;
-  }
-
   private boolean jj_3_13() {
     if (jj_scan_token(GREATER_THAN)) return true;
     if (jj_scan_token(NUMBER)) return true;
@@ -541,16 +538,29 @@ Token t, size1, size2;
     return false;
   }
 
+  private boolean jj_3_17() {
+    if (jj_scan_token(OPEN_PAR)) return true;
+    if (jj_3R_10()) return true;
+    if (jj_scan_token(CLOSE_PAR)) return true;
+    return false;
+  }
+
   private boolean jj_3_12() {
     if (jj_scan_token(LESS_THAN)) return true;
     if (jj_scan_token(NUMBER)) return true;
     return false;
   }
 
-  private boolean jj_3_17() {
-    if (jj_scan_token(OPEN_PAR)) return true;
-    if (jj_3R_10()) return true;
-    if (jj_scan_token(CLOSE_PAR)) return true;
+  private boolean jj_3R_16() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3_16()) {
+    jj_scanpos = xsp;
+    if (jj_3_17()) {
+    jj_scanpos = xsp;
+    if (jj_3_18()) return true;
+    }
+    }
     return false;
   }
 
@@ -563,6 +573,11 @@ Token t, size1, size2;
 
   private boolean jj_3_11() {
     if (jj_3R_7()) return true;
+    return false;
+  }
+
+  private boolean jj_3_16() {
+    if (jj_scan_token(NUMBER)) return true;
     return false;
   }
 
@@ -580,24 +595,6 @@ Token t, size1, size2;
     }
     }
     }
-    return false;
-  }
-
-  private boolean jj_3R_16() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3_16()) {
-    jj_scanpos = xsp;
-    if (jj_3_17()) {
-    jj_scanpos = xsp;
-    if (jj_3_18()) return true;
-    }
-    }
-    return false;
-  }
-
-  private boolean jj_3_16() {
-    if (jj_scan_token(NUMBER)) return true;
     return false;
   }
 
@@ -631,14 +628,14 @@ Token t, size1, size2;
     return false;
   }
 
-  private boolean jj_3_7() {
-    if (jj_3R_13()) return true;
-    return false;
-  }
-
   private boolean jj_3_21() {
     if (jj_scan_token(MINUS)) return true;
     if (jj_3R_15()) return true;
+    return false;
+  }
+
+  private boolean jj_3_7() {
+    if (jj_3R_13()) return true;
     return false;
   }
 
@@ -649,17 +646,6 @@ Token t, size1, size2;
 
   private boolean jj_3_5() {
     if (jj_3R_11()) return true;
-    return false;
-  }
-
-  private boolean jj_3_15() {
-    if (jj_scan_token(LOGIC_INEQUALITY)) return true;
-    if (jj_scan_token(NUMBER)) return true;
-    return false;
-  }
-
-  private boolean jj_3_4() {
-    if (jj_3R_10()) return true;
     return false;
   }
 
@@ -679,13 +665,14 @@ Token t, size1, size2;
     return false;
   }
 
-  private boolean jj_3_3() {
-    if (jj_3R_9()) return true;
+  private boolean jj_3_15() {
+    if (jj_scan_token(LOGIC_INEQUALITY)) return true;
+    if (jj_scan_token(NUMBER)) return true;
     return false;
   }
 
-  private boolean jj_3_9() {
-    if (jj_3R_7()) return true;
+  private boolean jj_3_4() {
+    if (jj_3R_10()) return true;
     return false;
   }
 
@@ -696,6 +683,16 @@ Token t, size1, size2;
       xsp = jj_scanpos;
       if (jj_3_19()) { jj_scanpos = xsp; break; }
     }
+    return false;
+  }
+
+  private boolean jj_3_3() {
+    if (jj_3R_9()) return true;
+    return false;
+  }
+
+  private boolean jj_3_9() {
+    if (jj_3R_7()) return true;
     return false;
   }
 
@@ -762,6 +759,12 @@ Token t, size1, size2;
     if (jj_scan_token(CLOSE_SQUARE)) return true;
     if (jj_scan_token(VARIABLE)) return true;
     if (jj_scan_token(ASSIGNMENT)) return true;
+    return false;
+  }
+
+  private boolean jj_3_24() {
+    if (jj_scan_token(DIVIDE)) return true;
+    if (jj_3R_16()) return true;
     return false;
   }
 
